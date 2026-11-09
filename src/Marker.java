@@ -11,8 +11,15 @@ public class Marker {
      * Example: p = "ACGAC" gives [0, 0, 0, 1, 2]. The last number is the "Border length" line.
      */
     public static int[] prefixFunction(String p) {
-        // TODO Mission 3a
-        return new int[p.length()];
+        int n = p.length();
+        int[] pi = new int[n];
+        int k = 0;                                  // length of the current border
+        for (int i = 1; i < n; i++) {
+            while (k > 0 && p.charAt(i) != p.charAt(k)) k = pi[k - 1];
+            if (p.charAt(i) == p.charAt(k)) k++;
+            pi[i] = k;
+        }
+        return pi;
     }
 
     /**
@@ -22,8 +29,18 @@ public class Marker {
      * the first one is "First hit" (-1 when there is none).
      */
     public static int[] findAll(String text, String p) {
-        // TODO Mission 3b
-        return new int[0];
+        int n = text.length(), m = p.length();
+        if (m == 0 || m > n) return new int[0];
+        int[] pi = prefixFunction(p);
+        int[] res = new int[n];
+        int cnt = 0;
+        int k = 0;                                  // how many letters of p match now
+        for (int i = 0; i < n; i++) {               // i never goes back
+            while (k > 0 && (k == m || text.charAt(i) != p.charAt(k))) k = pi[k - 1];
+            if (text.charAt(i) == p.charAt(k)) k++;
+            if (k == m) res[cnt++] = i - m + 1;     // full match; overlaps are kept by k = pi[k-1] on the next step
+        }
+        return Arrays.copyOf(res, cnt);
     }
 
     /**
@@ -35,7 +52,39 @@ public class Marker {
      * Example: a = "ACGTAC", b = "TTACGT", k = 4: the words of a are ACGT, CGTA, GTAC; only ACGT is in b, so the answer is 1.
      */
     public static int sharedWords(String a, String b, int k) {
-        // TODO Mission 4
-        return -1;
+        int n = a.length(), m = b.length();
+        if (k <= 0 || n < k || m < k) return 0;
+        final long MOD = 1_000_000_007L, BASE = 131;
+        long pow = 1;                               // BASE^(k-1)
+        for (int i = 1; i < k; i++) pow = pow * BASE % MOD;
+
+        // hashes of all windows of b: hash -> start positions
+        Map<Long, List<Integer>> windows = new HashMap<>();
+        long h = 0;
+        for (int i = 0; i < k; i++) h = (h * BASE + b.charAt(i)) % MOD;
+        for (int i = 0; ; i++) {
+            windows.computeIfAbsent(h, x -> new ArrayList<>()).add(i);
+            if (i + k >= m) break;
+            h = ((h - b.charAt(i) * pow % MOD + MOD) % MOD * BASE + b.charAt(i + k)) % MOD;   // roll in O(1)
+        }
+
+        int count = 0;
+        h = 0;
+        for (int i = 0; i < k; i++) h = (h * BASE + a.charAt(i)) % MOD;
+        for (int i = 0; ; i++) {
+            List<Integer> cand = windows.get(h);
+            if (cand != null) {
+                for (int j : cand) {                // equal hash: compare the letters
+                    boolean same = true;
+                    for (int t = 0; t < k; t++) {
+                        if (a.charAt(i + t) != b.charAt(j + t)) { same = false; break; }
+                    }
+                    if (same) { count++; break; }
+                }
+            }
+            if (i + k >= n) break;
+            h = ((h - a.charAt(i) * pow % MOD + MOD) % MOD * BASE + a.charAt(i + k)) % MOD;
+        }
+        return count;
     }
 }
