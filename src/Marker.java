@@ -13,7 +13,7 @@ public class Marker {
     public static int[] prefixFunction(String p) {
         int n = p.length();
         int[] pi = new int[n];
-        int k = 0;                                  // length of the current border
+        int k = 0;
         for (int i = 1; i < n; i++) {
             while (k > 0 && p.charAt(i) != p.charAt(k)) k = pi[k - 1];
             if (p.charAt(i) == p.charAt(k)) k++;
@@ -34,11 +34,11 @@ public class Marker {
         int[] pi = prefixFunction(p);
         int[] res = new int[n];
         int cnt = 0;
-        int k = 0;                                  // how many letters of p match now
-        for (int i = 0; i < n; i++) {               // i never goes back
+        int k = 0;
+        for (int i = 0; i < n; i++) {
             while (k > 0 && (k == m || text.charAt(i) != p.charAt(k))) k = pi[k - 1];
             if (text.charAt(i) == p.charAt(k)) k++;
-            if (k == m) res[cnt++] = i - m + 1;     // full match; overlaps are kept by k = pi[k-1] on the next step
+            if (k == m) res[cnt++] = i - m + 1;
         }
         return Arrays.copyOf(res, cnt);
     }
@@ -55,18 +55,15 @@ public class Marker {
         int n = a.length(), m = b.length();
         if (k <= 0 || n < k || m < k) return 0;
         final long MOD = 1_000_000_007L, BASE = 131;
-        long pow = 1;                               // BASE^(k-1)
+        long pow = 1;
         for (int i = 1; i < k; i++) pow = pow * BASE % MOD;
-
-        // hashes of all windows of b: hash -> start positions
         Map<Long, List<Integer>> windows = new HashMap<>();
         long h = 0;
         for (int i = 0; i < k; i++) h = (h * BASE + b.charAt(i)) % MOD;
         for (int i = 0; ; i++) {
             windows.computeIfAbsent(h, x -> new ArrayList<>()).add(i);
             if (i + k >= m) break;
-            h = ((h - b.charAt(i) * pow % MOD + MOD) % MOD * BASE + b.charAt(i + k)) % MOD;   // roll in O(1)
-        }
+            h = ((h - b.charAt(i) * pow % MOD + MOD) % MOD * BASE + b.charAt(i + k)) % MOD;
 
         int count = 0;
         h = 0;
@@ -74,7 +71,7 @@ public class Marker {
         for (int i = 0; ; i++) {
             List<Integer> cand = windows.get(h);
             if (cand != null) {
-                for (int j : cand) {                // equal hash: compare the letters
+                for (int j : cand) {
                     boolean same = true;
                     for (int t = 0; t < k; t++) {
                         if (a.charAt(i + t) != b.charAt(j + t)) { same = false; break; }

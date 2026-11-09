@@ -17,8 +17,41 @@ public class Outbreak {
      * Main calls this twice: with all costs equal to 1 (the line "Tests needed") and with the real costs ("Cheapest testing").
      */
     public static boolean[] cheapestTests(int n, int[][] nb, int[] cost) {
-        // TODO Mission 5a
-        return new boolean[n];
+        // order: parents before children (iterative DFS from person 0)
+        int[] parent = new int[n];
+        int[] order = new int[n];
+        Arrays.fill(parent, -1);
+        boolean[] seen = new boolean[n];
+        int[] stack = new int[n];
+        int sp = 0, cnt = 0;
+        stack[sp++] = 0;
+        seen[0] = true;
+        while (sp > 0) {
+            int v = stack[--sp];
+            order[cnt++] = v;
+            for (int u : nb[v]) {
+                if (!seen[u]) { seen[u] = true; parent[u] = v; stack[sp++] = u; }
+            }
+        }
+
+        long[] yes = new long[n], no = new long[n];
+        for (int idx = cnt - 1; idx >= 0; idx--) {
+            int v = order[idx];
+            yes[v] += cost[v];
+            if (parent[v] >= 0) {
+                int p = parent[v];
+                yes[p] += Math.min(yes[v], no[v]);
+                no[p] += yes[v];
+            }
+        }
+        boolean[] tested = new boolean[n];
+        for (int idx = 0; idx < cnt; idx++) {
+            int v = order[idx];
+            if (parent[v] < 0) tested[v] = yes[v] <= no[v];
+            else if (!tested[parent[v]]) tested[v] = true;
+            else tested[v] = yes[v] <= no[v];
+        }
+        return tested;
     }
 
     /**
@@ -27,7 +60,33 @@ public class Outbreak {
      * Example: a line 0-1-2-3 has chain 3; a star with centre 0 and leaves 1, 2, 3 has chain 2.
      */
     public static int longestChain(int n, int[][] nb) {
-        // TODO Mission 5b
-        return -1;
+        int[] parent = new int[n];
+        int[] order = new int[n];
+        Arrays.fill(parent, -1);
+        boolean[] seen = new boolean[n];
+        int[] stack = new int[n];
+        int sp = 0, cnt = 0;
+        stack[sp++] = 0;
+        seen[0] = true;
+        while (sp > 0) {
+            int v = stack[--sp];
+            order[cnt++] = v;
+            for (int u : nb[v]) {
+                if (!seen[u]) { seen[u] = true; parent[u] = v; stack[sp++] = u; }
+            }
+        }
+        int[] best1 = new int[n], best2 = new int[n];
+        int answer = 0;
+        for (int idx = cnt - 1; idx >= 0; idx--) {
+            int v = order[idx];
+            answer = Math.max(answer, best1[v] + best2[v]);   // path that turns at v
+            int p = parent[v];
+            if (p >= 0) {
+                int len = best1[v] + 1;
+                if (len > best1[p]) { best2[p] = best1[p]; best1[p] = len; }
+                else if (len > best2[p]) best2[p] = len;
+            }
+        }
+        return answer;
     }
 }
