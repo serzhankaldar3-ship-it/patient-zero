@@ -57,6 +57,7 @@ public class Marker {
         final long MOD = 1_000_000_007L, BASE = 131;
         long pow = 1;
         for (int i = 1; i < k; i++) pow = pow * BASE % MOD;
+
         Map<Long, List<Integer>> windows = new HashMap<>();
         long h = 0;
         for (int i = 0; i < k; i++) h = (h * BASE + b.charAt(i)) % MOD;
@@ -64,6 +65,7 @@ public class Marker {
             windows.computeIfAbsent(h, x -> new ArrayList<>()).add(i);
             if (i + k >= m) break;
             h = ((h - b.charAt(i) * pow % MOD + MOD) % MOD * BASE + b.charAt(i + k)) % MOD;
+        }
 
         int count = 0;
         h = 0;

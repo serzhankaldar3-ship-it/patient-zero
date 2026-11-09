@@ -16,9 +16,7 @@ public class Outbreak {
      * Do not forget to rebuild the answer (who exactly is tested), not only the cost: the picture needs it.
      * Main calls this twice: with all costs equal to 1 (the line "Tests needed") and with the real costs ("Cheapest testing").
      */
-    public static boolean[] cheapestTests(int n, int[][] nb, int[] cost) {git add -A
-        git commit -m "Add tree DP for testing and longest chain"
-        git push
+    public static boolean[] cheapestTests(int n, int[][] nb, int[] cost) {
         int[] parent = new int[n];
         int[] order = new int[n];
         Arrays.fill(parent, -1);
@@ -45,6 +43,7 @@ public class Outbreak {
                 no[p] += yes[v];
             }
         }
+
         boolean[] tested = new boolean[n];
         for (int idx = 0; idx < cnt; idx++) {
             int v = order[idx];
@@ -76,11 +75,12 @@ public class Outbreak {
                 if (!seen[u]) { seen[u] = true; parent[u] = v; stack[sp++] = u; }
             }
         }
+
         int[] best1 = new int[n], best2 = new int[n];
         int answer = 0;
         for (int idx = cnt - 1; idx >= 0; idx--) {
             int v = order[idx];
-            answer = Math.max(answer, best1[v] + best2[v]);   // path that turns at v
+            answer = Math.max(answer, best1[v] + best2[v]);
             int p = parent[v];
             if (p >= 0) {
                 int len = best1[v] + 1;
