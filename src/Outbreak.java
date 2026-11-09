@@ -16,8 +16,9 @@ public class Outbreak {
      * Do not forget to rebuild the answer (who exactly is tested), not only the cost: the picture needs it.
      * Main calls this twice: with all costs equal to 1 (the line "Tests needed") and with the real costs ("Cheapest testing").
      */
-    public static boolean[] cheapestTests(int n, int[][] nb, int[] cost) {
-        // order: parents before children (iterative DFS from person 0)
+    public static boolean[] cheapestTests(int n, int[][] nb, int[] cost) {git add -A
+        git commit -m "Add tree DP for testing and longest chain"
+        git push
         int[] parent = new int[n];
         int[] order = new int[n];
         Arrays.fill(parent, -1);
